@@ -1,0 +1,30 @@
+server {
+        listen 80;
+        listen [::]:80;
+        server_name zabbix.example.com;
+        return 301 https://$host$request_uri;
+        }
+
+server {
+        listen 443 ssl http2;
+        listen [::]:443 ssl http2;
+
+        ssl_session_tickets off;
+        ssl_certificate     /path-to-fullchain.pem;
+        ssl_certificate_key /path-to-privkey.pem;
+
+        server_name zabbix.example.com;
+
+        location / {
+                root /usr/share/zabbix;
+                index index.html index.htm index.php;
+        }
+
+        location ~ \.php$ {
+                root            /usr/share/zabbix;
+                fastcgi_pass    unix:/run/php/php7.4-fpm.sock;
+                fastcgi_index   index.php;
+                fastcgi_param   SCRIPT_FILENAME $document_root$fastcgi_script_name;
+                include         fastcgi_params;
+        }
+}
